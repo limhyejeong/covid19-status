@@ -2,6 +2,13 @@ import { useState, useEffect } from 'react'
 import { Bar, Line, Doughnut } from 'react-chartjs-2'
 import axios from 'axios'
 
+let newActive;
+let last = {
+   year: '..',
+   month: '..',
+   date: '..'
+};
+
 const Contents = () => {
 
    const [confirmedData, setConfirmedData] = useState({labels:[], datasets:[]});
@@ -24,7 +31,7 @@ const Contents = () => {
             const death = cur.Deaths;
             const recovered = cur.Recovered;
 
-            const findItem = acc.find(a => a.year === year && a.month === month);
+            const findItem = acc.find(a => a.year === year && a.month === month && a.date === date);
 
             if (!findItem) {
                acc.push({ year, month, date, confirmed, active, death, recovered })
@@ -39,7 +46,9 @@ const Contents = () => {
                findItem.confirmed = confirmed;
             }
             return acc
+
          }, [])
+
 
          const labels = arr.map(a => `${a.month + 1}월`);
 
@@ -66,7 +75,10 @@ const Contents = () => {
             ]
          });
 
-         const last = arr[arr.length - 1];
+         last = arr[arr.length - 1];
+         let last2 = arr[arr.length - 2];
+         newActive = last.active - last2.active;
+         console.log(newActive);
 
          setComparedData({
             labels: ["확진자", "격리 해제", "사망"],
@@ -80,8 +92,6 @@ const Contents = () => {
                },
             ]
          });
-
-         console.log(arr);
       }
       fetchEvents();
    }, [])
@@ -89,6 +99,10 @@ const Contents = () => {
    return (
       <section>
          <h2>국내 코로나 현황</h2>
+         
+         <div>{last.year}년 {last.month + 1}월 {last.date}일 발생한 국내 확진자 수는 {newActive}명입니다.
+         </div>
+
          <div className="contents">
             <div>
                <Bar data={confirmedData} options={
